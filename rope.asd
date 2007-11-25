@@ -4,4 +4,5 @@
 
 (defsystem :rope
   :components ((:file "package")
-	       (:file "rope" :depends-on ("package"))))
+	       (:file "rope" :depends-on ("package")))
+  :depends-on (:arnesi))
