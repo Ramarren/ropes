@@ -1,6 +1,7 @@
 (in-package :ropes)
 
 (defparameter *short-leaf-length* 20)
+(defparameter *long-leaf-length* 100)
 
 (let ((memo-table (make-hash-table)))
   (defun memo-fibbon (k)
@@ -31,8 +32,14 @@
 
 (defgeneric make-rope (source))
 
+(defmethod make-rope ((source null))
+  nil)
+
 (defmethod make-rope ((source string))
-  (make-instance 'rope-leaf :str source :node-len (length source)))
+  (if (< (length source) *long-leaf-length*)
+      (make-instance 'rope-leaf :str source :node-len (length source))
+      (rope-concat (make-rope (subseq source 0 (round (length source) 2)))
+		   (make-rope (subseq source (round (length source) 2))))))
 
 (defmethod make-rope ((source rope-leaf))
   (make-instance 'rope-leaf :str (str source)))
