@@ -1,3 +1,3 @@
 (defpackage :ropes
-  (:use :cl)
-  (:import-from #:arnesi #:aif #:it))
+  (:use :cl :iterate)
+  (:import-from #:arnesi #:aif #:it #:rcurry #:curry))
