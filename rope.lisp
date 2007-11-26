@@ -137,11 +137,14 @@
 
 (defmethod rope-concat ((rope1 rope-concat) (rope2 rope-leaf))
   (if (typep (right rope1) 'rope-leaf)
-      (make-instance 'rope-concat
-		     :left (left rope1)
-		     :right (rope-concat (right rope1) rope2)
-		     :depth (1+ (max (depth rope1)
-				     (depth rope2))))
+      (let ((new-right (rope-concat (right rope1) rope2)))
+	(make-instance 'rope-concat
+		       :left (left rope1)
+		       :right new-right
+		       :node-len (+ (node-len (left rope1))
+				    (node-len new-right))
+		       :depth (1+ (max (depth rope1)
+				       (depth new-right)))))
       (rope-maybe-rebalance (make-instance 'rope-concat
 					   :left rope1
 					   :right rope2
