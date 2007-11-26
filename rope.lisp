@@ -92,7 +92,7 @@
 
 (defmethod rope-maybe-rebalance ((rope rope-concat))
   (cond
-    ((> (node-len rope) (memo-fibbon (+ (depth rope) 2)))
+    ((< (node-len rope) (memo-fibbon (+ (depth rope) 2)))
      (rope-rebalance rope))
     (t (let ((new-left (rope-maybe-rebalance (left rope))) ;;add some conditionals here as above
 	     (new-right (rope-maybe-rebalance (right rope))))
