@@ -1,8 +1,8 @@
-(defpackage :rope-system (:use :cl :asdf))
+(defpackage :ropes-system (:use :cl :asdf))
 
-(in-package :rope-system)
+(in-package :ropes-system)
 
-(defsystem :rope
+(defsystem :ropes
   :components ((:file "package")
 	       (:file "rope" :depends-on ("package")))
   :depends-on (:arnesi :iterate))
