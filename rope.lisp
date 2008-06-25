@@ -6,14 +6,15 @@
 (let ((memo-table (make-hash-table)))
   (defun memo-fibbon (k)
     (assert (>= k 0))
-    (aif (gethash k memo-table)
-	 it
-	 (case k
-	   (0 0)
-	   (1 1)
-	   (t (setf (gethash k memo-table)
-		    (+ (memo-fibbon (1- k))
-		       (memo-fibbon (- k 2)))))))))
+    (let ((it (gethash k memo-table)))
+      (if it
+	  it
+	  (case k
+	    (0 0)
+	    (1 1)
+	    (t (setf (gethash k memo-table)
+		     (+ (memo-fibbon (1- k))
+			(memo-fibbon (- k 2))))))))))
 
 (defclass rope-node ()
   ((node-len :accessor node-len :initform 0 :initarg :node-len)
