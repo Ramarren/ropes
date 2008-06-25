@@ -1,0 +1,1 @@
+Ropes datastructure implemented as describe in http://www.cs.ubc.ca/local/reading/proceedings/spe91-95/spe/vol25/issue12/spe986.pdf . Ropes are an alternative to strings designed for ease of concatenation and maximization of structure sharing between substrings.
