@@ -31,7 +31,8 @@
   ((left :accessor left :initform nil :initarg :left)
    (right :accessor right :initform nil :initarg :right)))
 
-(defgeneric make-rope (source))
+(defgeneric make-rope (source)
+  (:documentation "Create rope from string or other rope (copying structure)."))
 
 (defmethod make-rope ((source null))
   nil)
@@ -58,7 +59,8 @@
 (defmethod rope-rebalance ((rope rope-leaf))
   rope)
 
-(defgeneric rope-walk (rope fun))
+(defgeneric rope-walk (rope fun)
+  (:documentation "Walk rope, calling fun for every node."))
 
 (defmethod rope-walk ((rope rope-leaf) fun)
   (funcall fun rope))
@@ -107,7 +109,8 @@
 			    :depth (1+ (max (depth new-left)
 					    (depth new-right)))))))))
 
-(defgeneric rope-concat (rope1 rope2))
+(defgeneric rope-concat (rope1 rope2)
+  (:documentation "Concatenate two ropes, rope with a string, or two strings. If one argument is nil, the other is simply returned."))
 
 (defmethod rope-concat ((rope1 null) rope2)
   rope2)
@@ -153,14 +156,16 @@
 					   :depth (1+ (max (depth rope1)
 							   (depth rope2)))))))
 
-(defgeneric rope-to-string (rope))
+(defgeneric rope-to-string (rope)
+  (:documentation "Turn a rope intro string."))
 
 (defmethod rope-to-string ((rope rope-node))
   (with-output-to-string (str)
       (rope-walk rope #'(lambda (x)
 			  (princ (str x) str)))))
 
-(defgeneric rope-elt (rope i))
+(defgeneric rope-elt (rope i)
+  (:documentation "Return a character from rope."))
 
 (defmethod rope-elt ((rope rope-leaf) i)
   (char (str rope) i))
@@ -170,7 +175,8 @@
       (rope-elt (left rope) i)
       (rope-elt (right rope) (- i (node-len (left rope))))))
 
-(defgeneric make-rope-iterator (rope))
+(defgeneric make-rope-iterator (rope)
+  (:documentation "Create a function returning consecutive rope characters."))
 
 (defmethod make-rope-iterator ((rope rope-leaf))
   (let ((i -1))
@@ -195,13 +201,16 @@
 	  (t (char (str (car stack)) (incf i)))))))
 
 (defmacro do-rope ((var rope) &body body)
+  "Bind consecutive characters of rope to var and executes body."
   (let ((rope-iterator (gensym)))
    `(let ((,rope-iterator (make-rope-iterator ,rope)))
       (iter (for ,var next (funcall ,rope-iterator))
 	    (while ,var)
 	    ,@body))))
 
-(defgeneric rope-substring (rope &key start end))
+(defgeneric rope-substring (rope &key start end)
+  (:documentation "Return a subrope of rope limited by start and end. If not given they
+                   are respectively beginning and end of rope."))
 
 (defmethod rope-substring ((rope rope-leaf) &key (start 0) end)
   (let ((start (max start 0))
