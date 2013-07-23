@@ -109,6 +109,16 @@
 			    :depth (1+ (max (depth new-left)
 					    (depth new-right)))))))))
 
+(defun rope-simple-concat (rope1 rope2)
+  (check-type rope1 rope-node)
+  (check-type rope2 rope-node)
+  (rope-maybe-rebalance (make-instance 'rope-concat
+				       :left rope1
+				       :right rope2
+				       :node-len (+ (node-len rope1) (node-len rope2))
+				       :depth (1+ (max (depth rope1)
+						       (depth rope2))))))
+
 (defgeneric rope-concat (rope1 rope2)
   (:documentation "Concatenate two ropes, rope with a string, or two strings. If one argument is nil, the other is simply returned."))
 
@@ -132,12 +142,7 @@
 		     :depth 1)))
 
 (defmethod rope-concat ((rope1 rope-concat) (rope2 rope-concat))
-  (rope-maybe-rebalance (make-instance 'rope-concat
-				       :left rope1
-				       :right rope2
-				       :node-len (+ (node-len rope1) (node-len rope2))
-				       :depth (1+ (max (depth rope1)
-						       (depth rope2))))))
+  (rope-simple-concat rope1 rope2))
 
 (defmethod rope-concat ((rope1 rope-concat) (rope2 rope-leaf))
   (if (typep (right rope1) 'rope-leaf)
@@ -149,12 +154,10 @@
 				    (node-len new-right))
 		       :depth (1+ (max (depth rope1)
 				       (depth new-right)))))
-      (rope-maybe-rebalance (make-instance 'rope-concat
-					   :left rope1
-					   :right rope2
-					   :node-len (+ (node-len rope1) (node-len rope2))
-					   :depth (1+ (max (depth rope1)
-							   (depth rope2)))))))
+      (rope-simple-concat rope1 rope2)))
+
+(defmethod rope-concat ((rope1 rope-leaf) (rope2 rope-concat))
+  (rope-simple-concat rope1 rope2))
 
 (defgeneric rope-to-string (rope)
   (:documentation "Turn a rope intro string."))
