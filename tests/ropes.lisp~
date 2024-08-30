@@ -1,0 +1,7 @@
+(defpackage :ropes/test
+  (:use :cl :fiveam :fiveam-matches :ropes))
+
+(in-package :ropes/test)
+(test basic
+  (let ((r1 (make-rope "This is a simple rope to test the basic operations")))
+    (assert-that (rope-to-string r1) (equals "This is a simple rope to test the basic operations"))))
