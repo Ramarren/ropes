@@ -44,7 +44,7 @@
 		   (make-rope (subseq source (round (length source) 2))))))
 
 (defmethod make-rope ((source rope-leaf))
-  (make-instance 'rope-leaf :str (str source)))
+  (make-instance 'rope-leaf :str (str source) :node-len (length (str source))))
 
 (defmethod make-rope ((source rope-concat))
   (make-instance 'rope-concat
@@ -211,32 +211,39 @@
 	    (while ,var)
 	    ,@body))))
 
-(defgeneric rope-substring (rope &key start end)
+(defgeneric substring (rope &key start end)
   (:documentation "Return a subrope of rope limited by start and end. If not given they
                    are respectively beginning and end of rope."))
 
-(defmethod rope-substring ((rope rope-leaf) &key (start 0) end)
+(defmethod substring ((rope rope-leaf) &key (start 0) end)
   (let ((start (max start 0))
 	(end (if (null end)
 		 (node-len rope)
 		 (min (node-len rope) end))))
     (make-rope (subseq (str rope) start end))))
 
-(defmethod rope-substring ((rope rope-concat) &key (start 0) end)
-  (let ((left (if (and (<= start 0)
-		       (>= end (node-len (left rope))))
-		  (left rope)
-		  (rope-substring (left rope) :start start :end end)))
-	(right (cond
-		 ((and (<= start (node-len (left rope)))
-		       (>= end
-			   (+ (node-len (left rope))
-			      (node-len (right rope)))))
-		  (right rope))
-		 ((or (<= end (node-len (left rope)))
-		      (>= start (node-len rope)))
-		  nil)
-		 (t (rope-substring (right rope)
-				    :start (- start (node-len (left rope)))
-				    :end (- end (node-len (left rope))))))))
-    (rope-concat left right)))
+(defmethod substring ((rope rope-concat) &key (start 0) end)
+  ;;; Three cases, entirely left, entirely right, or span
+
+  (let ((start (max start 0))
+        (end   (min (node-len rope) end))
+        (l (left rope))
+        (r (right rope)))
+    (cond
+      ((and (<= start (node-len l))
+            (<= end (node-len l)))       ; Entirely within left child
+       (substring l :start start :end end))
+      ((and (> start (node-len l))      ; start Not within left child
+            (<= (- end (node-len l)) (node-len r))) ; end within right child
+       (substring r :start (- start (node-len l))
+                       :end (- end (node-len l))))
+      (t                                ; Split between both children
+       (rope-concat (substring l :start start :end (node-len l))
+                    (substring r :start 0 :end (- end (node-len l))))))))
+
+(defgeneric rope-remove (rope &key start end)
+  (:documentation "Delete the characters from start to end from the rope"))
+
+(defmethod rope-remove (rope &key start end)
+  (rope-concat (substring rope :start 0 :end start)
+               (substring rope :start end :end (node-len rope))))

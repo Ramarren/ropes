@@ -1,0 +1,29 @@
+(defpackage :ropes/test
+  (:use :cl :fiveam :fiveam-matchers :ropes))
+
+(in-package :ropes/test)
+(test basic
+  (let* ((s1 "This is a simple rope to test the basic operations")
+         (r1 (make-rope s1)))
+    (assert-that (rope-to-string r1)
+                 (equal-to "This is a simple rope to test the basic operations"))
+    (assert-that (rope-to-string (rope-substring r1 :start 3 :end 9))
+                 (equal-to "s is a"))
+    ))
+
+;;; Test a bigger string to make sure that this stuff really works. We
+;;; will assembple a rope from smaller pieces.
+(test bigger
+  (let* ((contents '("This is the first part of the long string that "
+            "will comprise this rope. I found in random testing "
+            "that a 300+ charactyer string caused us problems "
+            "when trying to extract a substring that happened "
+            "to span 2 leafs in the tree. This shouldn't be a "
+            "problem so we test for it here."))
+
+         (r (reduce
+            (lambda (item accum) (rope-concat (make-rope item) accum))
+              contents :initial-value (make-rope ""))))
+
+    (assert-that (rope-substring r :start 30 :end 50)
+                 (equal-to "long string that wil"))))
